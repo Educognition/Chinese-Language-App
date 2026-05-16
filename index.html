@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chinese Tutor</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom selection color to match the theme */
+        ::selection {
+            background-color: #fecaca; /* red-200 */
+            color: #1f2937; /* neutral-800 */
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-neutral-50 text-neutral-800 font-sans">
+
+    <!-- Header -->
+    <header class="bg-red-600 text-white shadow-md p-4">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <h1 class="text-xl font-bold tracking-wide">Interactive Chinese Tutor</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 mt-6">
+        
+        <!-- Navigation Tabs -->
+        <div class="flex justify-center gap-4 mb-6">
+            <button id="tab-practice" class="flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all shadow-sm bg-red-600 text-white shadow-md scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                Phrase Practice
+            </button>
+            <button id="tab-quiz" class="flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all shadow-sm bg-white text-neutral-600 hover:bg-neutral-100">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                Flashcard Quiz
+            </button>
+        </div>
+
+        <!-- Global Study Mode Toggles -->
+        <div class="flex flex-wrap justify-center gap-3 mb-8 w-full max-w-lg mx-auto">
+            <button id="toggle-pinyin" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50">
+                <span id="icon-pinyin">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </span>
+                <span id="text-pinyin">Hide Pinyin</span>
+            </button>
+            
+            <button id="toggle-characters" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50">
+                <span id="icon-characters">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </span>
+                <span id="text-characters">Hide Characters</span>
+            </button>
+
+            <button id="toggle-blind" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/></svg>
+                <span id="text-blind">Blind Listening</span>
+            </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 1: PRACTICE MODE -->
+        <!-- ========================================== -->
+        <div id="view-practice" class="flex flex-col items-center">
+            
+            <!-- Category Selector -->
+            <div class="mb-4 w-full max-w-lg flex justify-between items-center bg-white p-2 rounded-xl shadow-sm border border-neutral-200">
+                <select id="practice-select" class="w-full bg-transparent p-2 text-lg font-medium outline-none text-neutral-700 cursor-pointer"></select>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex justify-between w-full max-w-lg mb-4 px-2">
+                <button id="practice-prev" class="flex items-center text-neutral-500 hover:text-neutral-800 disabled:opacity-30 font-medium py-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-1"><path d="m15 18-6-6 6-6"/></svg> Previous
+                </button>
+                <button id="practice-next" class="flex items-center text-neutral-500 hover:text-neutral-800 disabled:opacity-30 font-medium py-1">
+                    Next <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 ml-1"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </div>
+
+            <!-- Flashcard Area -->
+            <div class="bg-white rounded-3xl shadow-lg p-8 w-full max-w-lg text-center border-t-4 border-red-500 relative min-h-[300px] flex flex-col justify-center">
+                <div id="practice-counter" class="absolute top-4 right-4 text-neutral-400 font-medium">1 / X</div>
+                
+                <div id="practice-peek-hint" class="absolute top-4 left-4 text-xs font-bold text-neutral-400 bg-neutral-100 px-2 py-1 rounded-md hidden">
+                    Hover to peek 👀
+                </div>
+
+                <div class="space-y-4 my-8">
+                    <p id="practice-en" class="text-xl font-medium transition-all duration-300 text-neutral-500"></p>
+                    <h2 id="practice-zh" class="text-5xl font-bold transition-all duration-300 text-neutral-800"></h2>
+                    <p id="practice-pinyin" class="text-2xl font-medium tracking-wide transition-all duration-300 text-red-600"></p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-center gap-6 mt-4">
+                    <button id="practice-play" class="bg-neutral-100 hover:bg-neutral-200 text-neutral-700 p-4 rounded-full transition-colors disabled:opacity-50 flex items-center justify-center shadow-sm" title="Listen">
+                        <!-- SVG injected via JS -->
+                    </button>
+                    <button id="practice-mic" class="bg-red-600 hover:bg-red-700 text-white p-4 rounded-full transition-colors shadow-md disabled:opacity-80 flex items-center justify-center" title="Speak">
+                        <!-- SVG injected via JS -->
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feedback Area -->
+            <div class="mt-6 min-h-[80px] text-center w-full max-w-lg">
+                <div id="practice-error" class="text-red-500 font-medium bg-red-50 p-3 rounded-lg hidden"></div>
+                <p id="practice-listening-status" class="text-neutral-500 font-medium animate-pulse hidden">Listening... (Speak Chinese)</p>
+                
+                <div id="practice-feedback-box" class="p-4 rounded-xl border transition-all hidden">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <div id="practice-feedback-icon"></div>
+                        <span id="practice-feedback-title" class="font-bold"></span>
+                    </div>
+                    <p class="text-neutral-600 text-sm">You said: <span id="practice-recognized-text" class="font-semibold text-neutral-800 text-lg"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: FLASHCARD QUIZ MODE -->
+        <!-- ========================================== -->
+        <div id="view-quiz" class="flex flex-col items-center hidden">
+            
+            <!-- Category Selector -->
+            <div class="mb-4 w-full max-w-lg flex justify-between items-center bg-white p-2 rounded-xl shadow-sm border border-neutral-200">
+                <select id="quiz-select" class="w-full bg-transparent p-2 text-lg font-medium outline-none text-neutral-700 cursor-pointer"></select>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex justify-between w-full max-w-lg mb-4 px-2">
+                <button id="quiz-prev" class="flex items-center text-neutral-500 hover:text-neutral-800 disabled:opacity-30 font-medium py-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-1"><path d="m15 18-6-6 6-6"/></svg> Previous
+                </button>
+                <button id="quiz-next" class="flex items-center text-neutral-500 hover:text-neutral-800 disabled:opacity-30 font-medium py-1">
+                    Next <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 ml-1"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </div>
+
+            <!-- Quiz Flashcard Area -->
+            <div class="bg-white rounded-3xl shadow-lg p-8 w-full max-w-lg text-center border-t-4 border-blue-500 relative min-h-[300px] flex flex-col justify-center">
+                <div id="quiz-counter" class="absolute top-4 right-4 text-neutral-400 font-medium">1 / X</div>
+
+                <div id="quiz-peek-hint" class="absolute top-4 left-4 text-xs font-bold text-neutral-400 bg-neutral-100 px-2 py-1 rounded-md hidden">
+                    Hover to peek 👀
+                </div>
+
+                <div class="space-y-4 my-8">
+                    <h2 id="quiz-zh" class="text-5xl font-bold transition-all duration-300 text-neutral-800"></h2>
+                    <p id="quiz-pinyin" class="text-2xl font-medium tracking-wide transition-all duration-300 text-blue-600"></p>
+                    
+                    <!-- Answer Reveal -->
+                    <div id="quiz-answer-container" class="mt-6 transition-all duration-300 opacity-0">
+                        <p class="text-xl text-neutral-600 font-bold border-t pt-4">Meaning: <span id="quiz-en"></span></p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-center gap-6 mt-4">
+                    <button id="quiz-play" class="bg-neutral-100 hover:bg-neutral-200 text-neutral-700 p-4 rounded-full transition-colors flex items-center justify-center shadow-sm" title="Listen to Chinese">
+                        <!-- SVG injected -->
+                    </button>
+                    <button id="quiz-mic" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full transition-colors shadow-md disabled:opacity-80 flex items-center justify-center" title="Speak English Meaning">
+                        <!-- SVG injected -->
+                    </button>
+                    <button id="quiz-reveal" class="bg-neutral-100 hover:bg-neutral-200 text-neutral-700 p-4 rounded-full transition-colors flex items-center justify-center shadow-sm" title="Reveal Answer">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Feedback Area -->
+            <div class="mt-6 min-h-[80px] text-center w-full max-w-lg">
+                <div id="quiz-error" class="text-red-500 font-medium bg-red-50 p-3 rounded-lg hidden"></div>
+                <p id="quiz-listening-status" class="text-neutral-500 font-medium animate-pulse hidden">Listening... (Speak English Meaning)</p>
+                
+                <div id="quiz-feedback-box" class="p-4 rounded-xl border transition-all hidden">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <div id="quiz-feedback-icon"></div>
+                        <span id="quiz-feedback-title" class="font-bold"></span>
+                    </div>
+                    <p class="text-neutral-600 text-sm">You said: <span id="quiz-recognized-text" class="font-semibold text-neutral-800 text-lg"></span></p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Application Logic -->
+    <script>
+        // --- DATA ---
+        const studyData = {
+            "Monday": {
+                title: "Greetings & Basics",
+                phrases: [
+                    { en: "Hello!", pinyin: "nǐ hǎo", zh: "你好" },
+                    { en: "Good morning!", pinyin: "zǎo shàng hǎo", zh: "早上好" },
+                    { en: "Good afternoon!", pinyin: "xià wǔ hǎo", zh: "下午好" },
+                    { en: "Good evening!", pinyin: "wǎn shàng hǎo", zh: "晚上好" },
+                    { en: "Hello, everyone", pinyin: "Tóng xué men hǎo", zh: "同学们好" },
+                    { en: "Hello, teacher", pinyin: "Lǎo shī hǎo", zh: "老师好" },
+                    { en: "Happy New Year", pinyin: "Kuài lè Xīn nián", zh: "快乐新年" },
+                    { en: "Wish you a fortune", pinyin: "Gōng xǐ fā cái", zh: "恭喜发财" },
+                    { en: "Give me red envelope", pinyin: "Hóng bāo ná lái", zh: "红包拿来" },
+                    { en: "I have a pen.", pinyin: "Wǒ yǒu yī zhī bǐ.", zh: "我有一支笔。" },
+                    { en: "Each of us take two.", pinyin: "Měi rén liǎng gè, ná liǎng gè.", zh: "每人两个，拿两个。" },
+                    { en: "How are you?", pinyin: "Nǐ hǎo ma?", zh: "你好吗？" },
+                    { en: "I am very good.", pinyin: "Wǒ hěn hǎo.", zh: "我很好。" },
+                    { en: "Thank you.", pinyin: "Xiè xie.", zh: "谢谢。" },
+                    { en: "You're welcome.", pinyin: "Bù kè qì.", zh: "不客气。" }
+                ]
+            },
+            "Tuesday": {
+                title: "Classroom Setup",
+                phrases: [
+                    { en: "Let’s start the class.", pinyin: "shàng kè la !", zh: "上课啦！" },
+                    { en: "Let's begin (class)", pinyin: "Shàng kè", zh: "上课" },
+                    { en: "Stand up", pinyin: "Qǐ lì", zh: "起立" },
+                    { en: "Sit down", pinyin: "Zuò xià / Qǐng zuò", zh: "坐下 / 请坐" },
+                    { en: "Be quiet please.", pinyin: "qǐng ān jìng.", zh: "请安静。" },
+                    { en: "Get your supplies ready. You have 2 minutes.", pinyin: "Zhǔn bèi hǎo, liǎng fēn zhōng shàng kè", zh: "准备好，2分钟上课" },
+                    { en: "Math class", pinyin: "Shù xué kè", zh: "数学课" },
+                    { en: "Listen!", pinyin: "Tīng kè!", zh: "听课！" },
+                    { en: "Stop talking / Don't speak", pinyin: "Bié shuō huà", zh: "别说话" },
+                    { en: "Right now!", pinyin: "Lì kè, mǎ shàng!", zh: "立刻，马上！" },
+                    { en: "What are you doing?", pinyin: "Gàn má ne?", zh: "干嘛呢？" },
+                    { en: "What nonsense are you talking?", pinyin: "Fèi shén me huà ya?", zh: "废什么话呀？" },
+                    { en: "Open your books.", pinyin: "Dǎ kāi shū.", zh: "打开书。" },
+                    { en: "Look at the board.", pinyin: "Kàn hēi bǎn.", zh: "看黑板。" },
+                    { en: "Any questions?", pinyin: "Yǒu wèn tí ma?", zh: "有问题吗？" }
+                ]
+            },
+            "Wednesday": {
+                title: "Encouraging & Directing",
+                phrases: [
+                    { en: "Be brave a bit.", pinyin: "yǒng gǎn yì diǎn", zh: "勇敢一点" },
+                    { en: "Please take a try.", pinyin: "shì yī shì ba ?", zh: "试一试吧？" },
+                    { en: "Please rethink about this.", pinyin: "zài xiǎng yī xiǎng ?", zh: "再想一想？" },
+                    { en: "Who would answer this question?", pinyin: "shuí lái huí dá yī xià ?", zh: "谁来回答一下？" },
+                    { en: "Correct！", pinyin: "duì !", zh: "对！" },
+                    { en: "Awesome！", pinyin: "tài bàng le !", zh: "太棒了！" },
+                    { en: "Writing", pinyin: "Xiě", zh: "写" },
+                    { en: "Reading", pinyin: "Dú", zh: "读" },
+                    { en: "Don't draw!", pinyin: "Bié huà!", zh: "别画！" },
+                    { en: "Go to study", pinyin: "Qù xué xí!", zh: "去学习！" },
+                    { en: "You're making trouble!", pinyin: "Nǐ zài zhì zào má fan!", zh: "你在制造麻烦！" },
+                    { en: "You are in trouble.", pinyin: "Nǐ tān shàng shì er le.", zh: "你摊上事儿了。" },
+                    { en: "You've made a big trouble!", pinyin: "Nǐ chuǎng dà huò le!", zh: "你闯大祸了！" },
+                    { en: "Very good!", pinyin: "Hěn hǎo!", zh: "很好！" },
+                    { en: "Read after me.", pinyin: "Gēn wǒ dú.", zh: "跟我读。" }
+                ]
+            },
+            "Thursday": {
+                title: "Conversational Q&A",
+                phrases: [
+                    { en: "Do you speak English?", pinyin: "Nǐ huì shuō yīng yǔ ma", zh: "你会说英语吗？" },
+                    { en: "A little.", pinyin: "huì yī diǎn ér.", zh: "会一点儿。" },
+                    { en: "Are you learning Chinese?", pinyin: "Nǐ zài xué zhōng wén ma ?", zh: "你在学中文吗？" },
+                    { en: "Yes, I just started.", pinyin: "Shì de , gāng kāi shǐ xué .", zh: "是的，刚开始学。" },
+                    { en: "Do you think Chinese is hard?", pinyin: "nǐ jué de zhōng wén nán bù nán ?", zh: "你觉得中文难不难？" },
+                    { en: "Does your mom speak English?", pinyin: "Nǐ mā ma huì shuō yīng yǔ ma ?", zh: "你妈妈会说英语吗？" },
+                    { en: "Not at all.", pinyin: "Tā yī diǎn ér yě bù huì.", zh: "她一点儿也不会。" },
+                    { en: "Your Chinese is very good!", pinyin: "Nǐ zhōng wén shuō de hěn hǎo !", zh: "你中文说得很好！" },
+                    { en: "Oh, not really. It’s not very good yet.", pinyin: "Nǎ lǐ , nǎ lǐ . hái bù tài hǎo .", zh: "哪里，哪里。还不太好。" },
+                    { en: "Do you have spare pens?", pinyin: "Nǐ yǒu duō yú de bǐ ma?", zh: "你有多余的笔吗？" },
+                    { en: "What is your name?", pinyin: "Nǐ jiào shén me míng zì?", zh: "你叫什么名字？" },
+                    { en: "My name is...", pinyin: "Wǒ jiào...", zh: "我叫..." },
+                    { en: "Where are you from?", pinyin: "Nǐ shì nǎ lǐ rén?", zh: "你是哪里人？" },
+                    { en: "I am from...", pinyin: "Wǒ lái zì...", zh: "我来自..." },
+                    { en: "I am a teacher.", pinyin: "Wǒ shì lǎo shī.", zh: "我是老师。" }
+                ]
+            },
+            "Friday": {
+                title: "Conversation Management",
+                phrases: [
+                    { en: "My Chinese is not so good.", pinyin: "Wǒ de zhōng wén méi nà me hǎo.", zh: "我的中文没那么好。" },
+                    { en: "Do you need me to talk slower?", pinyin: "Xū yào wǒ màn yī diǎn ma?", zh: "需要我慢一点吗？" },
+                    { en: "I think the pronunciation is very hard.", pinyin: "wǒ jué de fā yīn hěn nán .", zh: "我觉得发音很难。" },
+                    { en: "I too am hot.", pinyin: "Wǒ yě hěn rè.", zh: "我也很热。" },
+                    { en: "Speak", pinyin: "Shuō", zh: "说" },
+                    { en: "Have", pinyin: "Yǒu", zh: "有" },
+                    { en: "Where", pinyin: "Nǎ lǐ", zh: "哪里" },
+                    { en: "There", pinyin: "Nà lǐ", zh: "那里" },
+                    { en: "Same", pinyin: "Yī yàng", zh: "一样" },
+                    { en: "Consonant/Initial", pinyin: "Shēng mǔ", zh: "声母" },
+                    { en: "I don't understand.", pinyin: "Wǒ bù dǒng.", zh: "我不懂。" },
+                    { en: "Please say it one more time.", pinyin: "Qǐng zài shuō yī cì.", zh: "请再说一次。" },
+                    { en: "How do you say this in Chinese?", pinyin: "Zhè ge yòng zhōng wén zěn me shuō?", zh: "这个用中文怎么说？" },
+                    { en: "What does this mean?", pinyin: "Zhè shì shén me yì si?", zh: "这是什么意思？" },
+                    { en: "Sorry.", pinyin: "Duì bù qǐ.", zh: "对不起。" }
+                ]
+            },
+            "Saturday": {
+                title: "People, Family & Food",
+                phrases: [
+                    { en: "Person/People", pinyin: "Rén", zh: "人" },
+                    { en: "Man", pinyin: "Nán rén", zh: "男人" },
+                    { en: "Woman", pinyin: "Nǚ rén", zh: "女人" },
+                    { en: "Student", pinyin: "Xué shēng", zh: "学生" },
+                    { en: "Classmate", pinyin: "Tóng xué", zh: "同学" },
+                    { en: "I have four kids.", pinyin: "Wǒ yǒu sì ge hái zi.", zh: "我有四个孩子。" },
+                    { en: "Oldest is Elanor", pinyin: "Lǎo dà shì Elanor.", zh: "老大是 Elanor。" },
+                    { en: "Second is Trevas", pinyin: "Lǎo èr shì Trevas.", zh: "老二是 Trevas。" },
+                    { en: "Third is Beckett", pinyin: "Lǎo sān shì Beckett.", zh: "老三是 Beckett。" },
+                    { en: "Fourth is Penny", pinyin: "Lǎo sì shì Penny.", zh: "老四是 Penny。" },
+                    { en: "Two boys", pinyin: "Liǎng ge nán hái (er)", zh: "两个男孩(儿)" },
+                    { en: "Two girls", pinyin: "Liǎng ge nǚ hái (er)", zh: "两个女孩(儿)" },
+                    { en: "Mom", pinyin: "Mā ma", zh: "妈妈" },
+                    { en: "Chicken meat", pinyin: "Jī ròu", zh: "鸡肉" },
+                    { en: "I like chicken.", pinyin: "Wǒ xǐ huān jī ròu.", zh: "我喜欢鸡肉。" },
+                    { en: "Egg", pinyin: "Jī dàn", zh: "鸡蛋" },
+                    { en: "Tomato scrambled eggs", pinyin: "Xī hóng shì chǎo jī dàn", zh: "西红柿炒鸡蛋" },
+                    { en: "Horse", pinyin: "Mǎ", zh: "马" },
+                    { en: "Dad", pinyin: "Bà ba", zh: "爸爸" },
+                    { en: "Family", pinyin: "Jiā rén", zh: "家人" }
+                ]
+            },
+            "Sunday": {
+                title: "Goodbyes & General",
+                phrases: [
+                    { en: "Goodbye!", pinyin: "Zài jiàn !", zh: "再见！" },
+                    { en: "See you later!", pinyin: "Huí jiàn !", zh: "回见！" },
+                    { en: "See you tomorrow!", pinyin: "Míng tiān jiàn !", zh: "明天见！" },
+                    { en: "See you next week!", pinyin: "Xià zhōu jiàn！", zh: "下周见！" },
+                    { en: "See you next time!", pinyin: "Xià cì jiàn !", zh: "下次见！" },
+                    { en: "Time", pinyin: "Shí jiān", zh: "时间" },
+                    { en: "Year", pinyin: "Nián", zh: "年" },
+                    { en: "Day", pinyin: "Tiān", zh: "天" },
+                    { en: "Way", pinyin: "Lù", zh: "路" },
+                    { en: "Thing", pinyin: "Dōng xi", zh: "东西" },
+                    { en: "Things/Matters", pinyin: "Shì qing", zh: "事情" },
+                    { en: "Life", pinyin: "Shēng huó", zh: "生活" },
+                    { en: "World", pinyin: "Shì jiè", zh: "世界" },
+                    { en: "Fact", pinyin: "Shì shí", zh: "事实" },
+                    { en: "Idea", pinyin: "Xiǎng fǎ", zh: "想法" },
+                    { en: "Today", pinyin: "Jīn tiān", zh: "今天" },
+                    { en: "Tomorrow", pinyin: "Míng tiān", zh: "明天" },
+                    { en: "Now", pinyin: "Xiàn zài", zh: "现在" }
+                ]
+            },
+            "Nouns": {
+                title: "Top 50 Nouns",
+                phrases: [
+                    { en: "Time", pinyin: "shí jiān", zh: "时间" },
+                    { en: "Person", pinyin: "rén", zh: "人" },
+                    { en: "Year", pinyin: "nián", zh: "年" },
+                    { en: "Day", pinyin: "tiān", zh: "天" },
+                    { en: "Thing", pinyin: "dōng xi", zh: "东西" },
+                    { en: "Water", pinyin: "shuǐ", zh: "水" },
+                    { en: "Money", pinyin: "qián", zh: "钱" },
+                    { en: "Book", pinyin: "shū", zh: "书" },
+                    { en: "Home / Family", pinyin: "jiā", zh: "家" },
+                    { en: "Friend", pinyin: "péng you", zh: "朋友" },
+                    { en: "School", pinyin: "xué xiào", zh: "学校" },
+                    { en: "Work / Job", pinyin: "gōng zuò", zh: "工作" },
+                    { en: "Name", pinyin: "míng zi", zh: "名字" },
+                    { en: "Car", pinyin: "chē", zh: "车" },
+                    { en: "Road / Way", pinyin: "lù", zh: "路" },
+                    { en: "Place", pinyin: "dì fang", zh: "地方" },
+                    { en: "Problem / Question", pinyin: "wèn tí", zh: "问题" },
+                    { en: "Word / Character", pinyin: "zì", zh: "字" },
+                    { en: "Language", pinyin: "yǔ yán", zh: "语言" },
+                    { en: "Movie", pinyin: "diàn yǐng", zh: "电影" },
+                    { en: "Music", pinyin: "yīn yuè", zh: "音乐" },
+                    { en: "Hand", pinyin: "shǒu", zh: "手" },
+                    { en: "Eye", pinyin: "yǎn jing", zh: "眼睛" },
+                    { en: "Food", pinyin: "shí wù", zh: "食物" },
+                    { en: "Clothes", pinyin: "yī fu", zh: "衣服" },
+                    { en: "Phone", pinyin: "shǒu jī", zh: "手机" },
+                    { en: "Computer", pinyin: "diàn nǎo", zh: "电脑" },
+                    { en: "Company", pinyin: "gōng sī", zh: "公司" },
+                    { en: "Country", pinyin: "guó jiā", zh: "国家" },
+                    { en: "World", pinyin: "shì jiè", zh: "世界" },
+                    { en: "Heart", pinyin: "xīn", zh: "心" },
+                    { en: "Mother", pinyin: "mā ma", zh: "妈妈" },
+                    { en: "Father", pinyin: "bà ba", zh: "爸爸" },
+                    { en: "Doctor", pinyin: "yī shēng", zh: "医生" },
+                    { en: "Teacher", pinyin: "lǎo shī", zh: "老师" },
+                    { en: "Student", pinyin: "xué sheng", zh: "学生" },
+                    { en: "Tea", pinyin: "chá", zh: "茶" },
+                    { en: "Rice", pinyin: "mǐ fàn", zh: "米饭" },
+                    { en: "Meat", pinyin: "ròu", zh: "肉" },
+                    { en: "Dog", pinyin: "gǒu", zh: "狗" },
+                    { en: "Cat", pinyin: "māo", zh: "猫" },
+                    { en: "Weather", pinyin: "tiān qì", zh: "天气" },
+                    { en: "Sun", pinyin: "tài yáng", zh: "太阳" },
+                    { en: "Moon", pinyin: "yuè liang", zh: "月亮" },
+                    { en: "Door", pinyin: "mén", zh: "门" },
+                    { en: "Window", pinyin: "chuāng hu", zh: "窗户" },
+                    { en: "Bed", pinyin: "chuáng", zh: "床" },
+                    { en: "Table", pinyin: "zhuō zi", zh: "桌子" },
+                    { en: "Chair", pinyin: "yǐ zi", zh: "椅子" },
+                    { en: "Room", pinyin: "fáng jiān", zh: "房间" }
+                ]
+            },
+            "Verbs": {
+                title: "Top 50 Verbs",
+                phrases: [
+                    { en: "To be", pinyin: "shì", zh: "是" },
+                    { en: "To have", pinyin: "yǒu", zh: "有" },
+                    { en: "To do / To make", pinyin: "zuò", zh: "做" },
+                    { en: "To go", pinyin: "qù", zh: "去" },
+                    { en: "To come", pinyin: "lái", zh: "来" },
+                    { en: "To look / To see", pinyin: "kàn", zh: "看" },
+                    { en: "To eat", pinyin: "chī", zh: "吃" },
+                    { en: "To drink", pinyin: "hē", zh: "喝" },
+                    { en: "To sleep", pinyin: "shuì jiào", zh: "睡觉" },
+                    { en: "To speak / To say", pinyin: "shuō", zh: "说" },
+                    { en: "To listen", pinyin: "tīng", zh: "听" },
+                    { en: "To write", pinyin: "xiě", zh: "写" },
+                    { en: "To read", pinyin: "dú", zh: "读" },
+                    { en: "To study / To learn", pinyin: "xué xí", zh: "学习" },
+                    { en: "To buy", pinyin: "mǎi", zh: "买" },
+                    { en: "To sell", pinyin: "mài", zh: "卖" },
+                    { en: "To want", pinyin: "yào", zh: "要" },
+                    { en: "To think / To miss", pinyin: "xiǎng", zh: "想" },
+                    { en: "To feel", pinyin: "jué de", zh: "觉得" },
+                    { en: "To know (a fact)", pinyin: "zhī dào", zh: "知道" },
+                    { en: "To know (a person)", pinyin: "rèn shi", zh: "认识" },
+                    { en: "To like", pinyin: "xǐ huan", zh: "喜欢" },
+                    { en: "To love", pinyin: "ài", zh: "爱" },
+                    { en: "To help", pinyin: "bāng zhù", zh: "帮助" },
+                    { en: "To walk", pinyin: "zǒu", zh: "走" },
+                    { en: "To run", pinyin: "pǎo", zh: "跑" },
+                    { en: "To give", pinyin: "gěi", zh: "给" },
+                    { en: "To take / To hold", pinyin: "ná", zh: "拿" },
+                    { en: "To ask", pinyin: "wèn", zh: "问" },
+                    { en: "To answer", pinyin: "huí dá", zh: "回答" },
+                    { en: "To use", pinyin: "yòng", zh: "用" },
+                    { en: "To start", pinyin: "kāi shǐ", zh: "开始" },
+                    { en: "To end / To finish", pinyin: "jié shù", zh: "结束" },
+                    { en: "To open", pinyin: "dǎ kāi", zh: "打开" },
+                    { en: "To close", pinyin: "guān", zh: "关" },
+                    { en: "To wait", pinyin: "děng", zh: "等" },
+                    { en: "To look for / To find", pinyin: "zhǎo", zh: "找" },
+                    { en: "To work", pinyin: "gōng zuò", zh: "工作" },
+                    { en: "To play", pinyin: "wán", zh: "玩" },
+                    { en: "To sit", pinyin: "zuò", zh: "坐" },
+                    { en: "To stand", pinyin: "zhàn", zh: "站" },
+                    { en: "To live (reside)", pinyin: "zhù", zh: "住" },
+                    { en: "To hope", pinyin: "xī wàng", zh: "希望" },
+                    { en: "To understand", pinyin: "dǒng", zh: "懂" },
+                    { en: "To remember", pinyin: "jì de", zh: "记得" },
+                    { en: "To forget", pinyin: "wàng jì", zh: "忘记" },
+                    { en: "To need", pinyin: "xū yào", zh: "需要" },
+                    { en: "To agree", pinyin: "tóng yì", zh: "同意" },
+                    { en: "To decide", pinyin: "jué dìng", zh: "决定" },
+                    { en: "To arrive", pinyin: "dào", zh: "到" }
+                ]
+            },
+            "Adjectives": {
+                title: "Top 50 Adjectives",
+                phrases: [
+                    { en: "Good", pinyin: "hǎo", zh: "好" },
+                    { en: "Bad", pinyin: "huài", zh: "坏" },
+                    { en: "Big", pinyin: "dà", zh: "大" },
+                    { en: "Small", pinyin: "xiǎo", zh: "小" },
+                    { en: "Many / Much", pinyin: "duō", zh: "多" },
+                    { en: "Few / Little", pinyin: "shǎo", zh: "少" },
+                    { en: "Hot", pinyin: "rè", zh: "热" },
+                    { en: "Cold", pinyin: "lěng", zh: "冷" },
+                    { en: "Long", pinyin: "cháng", zh: "长" },
+                    { en: "Short (length)", pinyin: "duǎn", zh: "短" },
+                    { en: "High / Tall", pinyin: "gāo", zh: "高" },
+                    { en: "Low / Short (height)", pinyin: "ǎi", zh: "矮" },
+                    { en: "New", pinyin: "xīn", zh: "新" },
+                    { en: "Old (objects)", pinyin: "jiù", zh: "旧" },
+                    { en: "Old (people)", pinyin: "lǎo", zh: "老" },
+                    { en: "Young", pinyin: "nián qīng", zh: "年轻" },
+                    { en: "Beautiful", pinyin: "piào liang", zh: "漂亮" },
+                    { en: "Ugly", pinyin: "chǒu", zh: "丑" },
+                    { en: "Fast / Quick", pinyin: "kuài", zh: "快" },
+                    { en: "Slow", pinyin: "màn", zh: "慢" },
+                    { en: "Expensive", pinyin: "guì", zh: "贵" },
+                    { en: "Cheap", pinyin: "pián yi", zh: "便宜" },
+                    { en: "Far", pinyin: "yuǎn", zh: "远" },
+                    { en: "Near / Close", pinyin: "jìn", zh: "近" },
+                    { en: "Difficult / Hard", pinyin: "nán", zh: "难" },
+                    { en: "Easy", pinyin: "róng yì", zh: "容易" },
+                    { en: "Happy", pinyin: "gāo xìng", zh: "高兴" },
+                    { en: "Sad", pinyin: "shāng xīn", zh: "伤心" },
+                    { en: "Tired", pinyin: "lèi", zh: "累" },
+                    { en: "Hungry", pinyin: "è", zh: "饿" },
+                    { en: "Full (not hungry)", pinyin: "bǎo", zh: "饱" },
+                    { en: "Thirsty", pinyin: "kě", zh: "渴" },
+                    { en: "Right / Correct", pinyin: "duì", zh: "对" },
+                    { en: "Wrong", pinyin: "cuò", zh: "错" },
+                    { en: "True / Real", pinyin: "zhēn", zh: "真" },
+                    { en: "False / Fake", pinyin: "jiǎ", zh: "假" },
+                    { en: "Clean", pinyin: "gān jìng", zh: "干净" },
+                    { en: "Dirty", pinyin: "zāng", zh: "脏" },
+                    { en: "Busy", pinyin: "máng", zh: "忙" },
+                    { en: "Free / Idle", pinyin: "xián", zh: "闲" },
+                    { en: "Important", pinyin: "zhòng yào", zh: "重要" },
+                    { en: "Smart", pinyin: "cōng ming", zh: "聪明" },
+                    { en: "Stupid", pinyin: "bèn", zh: "笨" },
+                    { en: "Clear", pinyin: "qīng chu", zh: "清楚" },
+                    { en: "Safe", pinyin: "ān quán", zh: "安全" },
+                    { en: "Dangerous", pinyin: "wēi xiǎn", zh: "危险" },
+                    { en: "Interesting", pinyin: "yǒu qù", zh: "有趣" },
+                    { en: "Boring", pinyin: "wú liáo", zh: "无聊" },
+                    { en: "Same", pinyin: "yí yàng", zh: "一样" },
+                    { en: "Different", pinyin: "bù tóng", zh: "不同" }
+                ]
+            },
+            "Sentences": {
+                title: "Common Daily Sentences",
+                phrases: [
+                    { en: "Long time no see.", pinyin: "Hǎo jiǔ bù jiàn.", zh: "好久不见。" },
+                    { en: "What have you been up to lately?", pinyin: "Nǐ zuì jìn zài máng shén me?", zh: "你最近在忙什么？" },
+                    { en: "Have you eaten yet?", pinyin: "Nǐ chī fàn le ma?", zh: "你吃饭了吗？" },
+                    { en: "I'm full.", pinyin: "Wǒ chī bǎo le.", zh: "我吃饱了。" },
+                    { en: "What do you want to eat?", pinyin: "Nǐ xiǎng chī shén me?", zh: "你想吃什么？" },
+                    { en: "Let's go eat.", pinyin: "Wǒ men qù chī fàn ba.", zh: "我们去吃饭吧。" },
+                    { en: "This is very delicious.", pinyin: "Zhè ge hěn hǎo chī.", zh: "这个很好吃。" },
+                    { en: "It's too expensive!", pinyin: "Tài guì le!", zh: "太贵了！" },
+                    { en: "Can you make it a bit cheaper?", pinyin: "Kě yǐ pián yi yī diǎn ma?", zh: "可以便宜一点吗？" },
+                    { en: "I'll buy it.", pinyin: "Wǒ mǎi le.", zh: "我买了。" },
+                    { en: "Where is the restroom?", pinyin: "Xǐ shǒu jiān zài nǎ lǐ?", zh: "洗手间在哪里？" },
+                    { en: "I am lost.", pinyin: "Wǒ mí lù le.", zh: "我迷路了。" },
+                    { en: "Turn left.", pinyin: "Zuǒ zhuǎn.", zh: "左转。" },
+                    { en: "Turn right.", pinyin: "Yòu zhuǎn.", zh: "右转。" },
+                    { en: "Go straight.", pinyin: "Yì zhí zǒu.", zh: "一直走。" },
+                    { en: "How do I get to the subway station?", pinyin: "Qù dì tiě zhàn zěn me zǒu?", zh: "去地铁站怎么走？" },
+                    { en: "I need help.", pinyin: "Wǒ xū yào bāng zhù.", zh: "我需要帮助。" },
+                    { en: "What time is it now?", pinyin: "Xiàn zài jǐ diǎn?", zh: "现在几点？" },
+                    { en: "What day is it today?", pinyin: "Jīn tiān xīng qī jǐ?", zh: "今天星期几？" },
+                    { en: "I am running late.", pinyin: "Wǒ chí dào le.", zh: "我迟到了。" },
+                    { en: "Wait a moment.", pinyin: "Děng yī xià.", zh: "等一下。" },
+                    { en: "Let's go together.", pinyin: "Wǒ men yì qǐ qù ba.", zh: "我们一起去吧。" },
+                    { en: "I have to go to work.", pinyin: "Wǒ yào qù shàng bān le.", zh: "我要去上班了。" },
+                    { en: "I just got off work.", pinyin: "Wǒ gāng xià bān.", zh: "我刚下班。" },
+                    { en: "Have a good weekend.", pinyin: "Zhōu mò kuài lè.", zh: "周末快乐。" },
+                    { en: "What are you doing this weekend?", pinyin: "Zhè ge zhōu mò nǐ zuò shén me?", zh: "这个周末你做什么？" },
+                    { en: "Do you want to watch a movie?", pinyin: "Nǐ xiǎng kàn diàn yǐng ma?", zh: "你想看电影吗？" },
+                    { en: "I am so tired today.", pinyin: "Jīn tiān wǒ hěn lèi.", zh: "今天我很累。" },
+                    { en: "I need to rest.", pinyin: "Wǒ xū yào xiū xi.", zh: "我需要休息。" },
+                    { en: "Good night, sweet dreams.", pinyin: "Wǎn ān, zuò ge hǎo mèng.", zh: "晚安，做个好梦。" },
+                    { en: "Don't worry.", pinyin: "Bié dān xīn.", zh: "别担心。" },
+                    { en: "It doesn't matter / That's okay.", pinyin: "Méi guān xi.", zh: "没关系。" },
+                    { en: "Let me think about it.", pinyin: "Ràng wǒ xiǎng xiǎng.", zh: "让我想想。" },
+                    { en: "I forgot.", pinyin: "Wǒ wàng le.", zh: "我忘了。" },
+                    { en: "I remember now.", pinyin: "Wǒ xiǎng qǐ lái le.", zh: "我想起来了。" },
+                    { en: "Really?", pinyin: "Zhēn de ma?", zh: "真的吗？" },
+                    { en: "Of course!", pinyin: "Dāng rán!", zh: "当然！" },
+                    { en: "I think so too.", pinyin: "Wǒ yě zhè yàng jué de.", zh: "我也这样觉得。" },
+                    { en: "I disagree.", pinyin: "Wǒ bù tóng yì.", zh: "我不同意。" },
+                    { en: "What a pity!", pinyin: "Tài kě xī le!", zh: "太可惜了！" },
+                    { en: "Congratulations!", pinyin: "Gōng xǐ!", zh: "恭喜！" },
+                    { en: "Happy Birthday!", pinyin: "Shēng rì kuài lè!", zh: "生日快乐！" },
+                    { en: "Cheers!", pinyin: "Gān bēi!", zh: "干杯！" },
+                    { en: "What is your phone number?", pinyin: "Nǐ de shǒu jī hào mǎ shì duō shǎo?", zh: "你的手机号码是多少？" },
+                    { en: "Let's keep in touch.", pinyin: "Bǎo chí lián xì.", zh: "保持联系。" },
+                    { en: "Add me on WeChat.", pinyin: "Jiā wǒ wēi xìn.", zh: "加我微信。" },
+                    { en: "The internet connection is bad.", pinyin: "Wǎng luò bù hǎo.", zh: "网络不好。" },
+                    { en: "Let me introduce you.", pinyin: "Wǒ gěi nǐ jiè shào yī xià.", zh: "我给你介绍一下。" },
+                    { en: "Nice to meet you.", pinyin: "Hěn gāo xìng rèn shí nǐ.", zh: "很高兴认识你。" },
+                    { en: "What are your hobbies?", pinyin: "Nǐ yǒu shén me ài hào?", zh: "你有什么爱好？" },
+                    { en: "I like listening to music.", pinyin: "Wǒ xǐ huān tīng yīn yuè.", zh: "我喜欢听音乐。" },
+                    { en: "What's the weather like today?", pinyin: "Jīn tiān tiān qì zěn me yàng?", zh: "今天天气怎么样？" },
+                    { en: "It's raining.", pinyin: "Xià yǔ le.", zh: "下雨了。" },
+                    { en: "It's very hot today.", pinyin: "Jīn tiān hěn rè.", zh: "今天很热。" },
+                    { en: "I agree with you.", pinyin: "Wǒ tóng yì nǐ de kàn fǎ.", zh: "我同意你的看法。" }
+                ]
+            }
+        };
+
+        // --- SVGs for dynamic buttons (prevents flickering) ---
+        const svgs = {
+            play: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+            mic: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mic"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>`,
+            check: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>`,
+            x: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle text-orange-500"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>`,
+            eye: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
+            eyeOff: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`
+        };
+
+        // --- UTILITIES ---
+        const cleanChineseText = (text) => text.replace(/[.,!?，。！？()\sa-zA-Z]/g, '');
+        const cleanEnglishText = (text) => text.toLowerCase().replace(/[.,!?/，。！？()[\]\s-]/g, '').trim();
+        const shuffleArray = (array) => {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        };
+
+        // --- STATE ---
+        let state = {
+            activeTab: 'practice',
+            
+            // Practice
+            selectedDay: 'Monday',
+            phraseIndex: 0,
+            isPlayingAudio: false,
+            isListening: false,
+            recognizedText: "",
+            feedbackState: null, // 'correct', 'incorrect'
+            speechError: "",
+
+            // Quiz
+            quizCategory: 'Monday',
+            quizIndex: 0,
+            shuffledQuizPhrases: shuffleArray(studyData['Monday'].phrases),
+            isQuizListening: false,
+            quizRecognizedText: "",
+            quizFeedback: null,
+            showQuizAnswer: false,
+
+            // Modes
+            hidePinyin: false,
+            hideCharacters: false,
+            blindMode: false
+        };
+
+        // --- DOM ELEMENTS ---
+        let els = {}; // Populated in init()
+
+        // --- INITIALIZATION ---
+        function init() {
+            // Setup DOM Elements reference map
+            els = {
+                tabPractice: document.getElementById('tab-practice'),
+                tabQuiz: document.getElementById('tab-quiz'),
+                viewPractice: document.getElementById('view-practice'),
+                viewQuiz: document.getElementById('view-quiz'),
+                
+                togglePinyin: document.getElementById('toggle-pinyin'),
+                toggleCharacters: document.getElementById('toggle-characters'),
+                toggleBlind: document.getElementById('toggle-blind'),
+                textPinyin: document.getElementById('text-pinyin'),
+                textCharacters: document.getElementById('text-characters'),
+                textBlind: document.getElementById('text-blind'),
+                iconPinyin: document.getElementById('icon-pinyin'),
+                iconCharacters: document.getElementById('icon-characters'),
+
+                // Practice
+                pracSelect: document.getElementById('practice-select'),
+                pracPrev: document.getElementById('practice-prev'),
+                pracNext: document.getElementById('practice-next'),
+                pracCounter: document.getElementById('practice-counter'),
+                pracEn: document.getElementById('practice-en'),
+                pracZh: document.getElementById('practice-zh'),
+                pracPinyin: document.getElementById('practice-pinyin'),
+                pracPlay: document.getElementById('practice-play'),
+                pracMic: document.getElementById('practice-mic'),
+                pracPeekHint: document.getElementById('practice-peek-hint'),
+                pracError: document.getElementById('practice-error'),
+                pracListenStat: document.getElementById('practice-listening-status'),
+                pracFeedbackBox: document.getElementById('practice-feedback-box'),
+                pracFeedbackIcon: document.getElementById('practice-feedback-icon'),
+                pracFeedbackTitle: document.getElementById('practice-feedback-title'),
+                pracRecognizedText: document.getElementById('practice-recognized-text'),
+
+                // Quiz
+                quizSelect: document.getElementById('quiz-select'),
+                quizPrev: document.getElementById('quiz-prev'),
+                quizNext: document.getElementById('quiz-next'),
+                quizCounter: document.getElementById('quiz-counter'),
+                quizZh: document.getElementById('quiz-zh'),
+                quizPinyin: document.getElementById('quiz-pinyin'),
+                quizEn: document.getElementById('quiz-en'),
+                quizAnsCont: document.getElementById('quiz-answer-container'),
+                quizPlay: document.getElementById('quiz-play'),
+                quizMic: document.getElementById('quiz-mic'),
+                quizReveal: document.getElementById('quiz-reveal'),
+                quizPeekHint: document.getElementById('quiz-peek-hint'),
+                quizError: document.getElementById('quiz-error'),
+                quizListenStat: document.getElementById('quiz-listening-status'),
+                quizFeedbackBox: document.getElementById('quiz-feedback-box'),
+                quizFeedbackIcon: document.getElementById('quiz-feedback-icon'),
+                quizFeedbackTitle: document.getElementById('quiz-feedback-title'),
+                quizRecognizedText: document.getElementById('quiz-recognized-text'),
+            };
+
+            // Populate Selects
+            const optionsHTML = Object.keys(studyData).map(day => `<option value="${day}">${studyData[day].title}</option>`).join('');
+            els.pracSelect.innerHTML = optionsHTML;
+            els.quizSelect.innerHTML = optionsHTML;
+            
+            // Set static button icons
+            els.pracPlay.innerHTML = svgs.play;
+            els.pracMic.innerHTML = svgs.mic;
+            els.quizPlay.innerHTML = svgs.play;
+            els.quizMic.innerHTML = svgs.mic;
+
+            setupEventListeners();
+            render();
+        }
+
+        // --- EVENT LISTENERS ---
+        function setupEventListeners() {
+            // Tabs
+            els.tabPractice.addEventListener('click', () => { state.activeTab = 'practice'; render(); });
+            els.tabQuiz.addEventListener('click', () => { state.activeTab = 'quiz'; render(); });
+
+            // Toggles
+            els.togglePinyin.addEventListener('click', () => {
+                state.hidePinyin = !state.hidePinyin;
+                if (state.blindMode) state.blindMode = false;
+                render();
+            });
+            els.toggleCharacters.addEventListener('click', () => {
+                state.hideCharacters = !state.hideCharacters;
+                if (state.blindMode) state.blindMode = false;
+                render();
+            });
+            els.toggleBlind.addEventListener('click', () => {
+                state.blindMode = !state.blindMode;
+                if (state.blindMode) {
+                    state.hidePinyin = true;
+                    state.hideCharacters = true;
+                }
+                render();
+            });
+
+            // Practice Controls
+            els.pracSelect.addEventListener('change', (e) => {
+                state.selectedDay = e.target.value;
+                state.phraseIndex = 0;
+                state.feedbackState = null;
+                state.recognizedText = "";
+                render();
+            });
+            els.pracPrev.addEventListener('click', () => {
+                if (state.phraseIndex > 0) {
+                    state.phraseIndex--;
+                    state.feedbackState = null;
+                    state.recognizedText = "";
+                    render();
+                }
+            });
+            els.pracNext.addEventListener('click', () => {
+                if (state.phraseIndex < studyData[state.selectedDay].phrases.length - 1) {
+                    state.phraseIndex++;
+                    state.feedbackState = null;
+                    state.recognizedText = "";
+                    render();
+                }
+            });
+            els.pracPlay.addEventListener('click', playPracticeAudio);
+            els.pracMic.addEventListener('click', startPracticeListening);
+
+            // Quiz Controls
+            els.quizSelect.addEventListener('change', (e) => {
+                state.quizCategory = e.target.value;
+                state.shuffledQuizPhrases = shuffleArray(studyData[state.quizCategory].phrases);
+                state.quizIndex = 0;
+                state.quizFeedback = null;
+                state.quizRecognizedText = "";
+                state.showQuizAnswer = false;
+                render();
+            });
+            els.quizPrev.addEventListener('click', () => {
+                if (state.quizIndex > 0) {
+                    state.quizIndex--;
+                    state.quizFeedback = null;
+                    state.quizRecognizedText = "";
+                    state.showQuizAnswer = false;
+                    render();
+                }
+            });
+            els.quizNext.addEventListener('click', () => {
+                if (state.quizIndex < state.shuffledQuizPhrases.length - 1) {
+                    state.quizIndex++;
+                    state.quizFeedback = null;
+                    state.quizRecognizedText = "";
+                    state.showQuizAnswer = false;
+                    render();
+                }
+            });
+            els.quizPlay.addEventListener('click', playQuizAudio);
+            els.quizMic.addEventListener('click', startQuizListening);
+            els.quizReveal.addEventListener('click', () => {
+                state.showQuizAnswer = true;
+                render();
+            });
+        }
+
+        // --- LOGIC FUNCTIONS ---
+
+        // Speech Synthesis
+        function playPracticeAudio() {
+            if (state.isPlayingAudio) return;
+            if (!window.speechSynthesis) {
+                state.speechError = "Text-to-speech is not supported in this browser.";
+                render();
+                return;
+            }
+
+            state.isPlayingAudio = true;
+            state.speechError = "";
+            render();
+
+            window.speechSynthesis.cancel();
+            const currentPhrase = studyData[state.selectedDay].phrases[state.phraseIndex];
+            const utZh = new SpeechSynthesisUtterance(currentPhrase.zh);
+            utZh.lang = 'zh-CN';
+            utZh.rate = 0.85;
+
+            utZh.onend = () => { state.isPlayingAudio = false; render(); };
+            utZh.onerror = () => { state.isPlayingAudio = false; render(); };
+
+            window.speechSynthesis.speak(utZh);
+        }
+
+        function playQuizAudio() {
+            if (!window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const currentQuizPhrase = state.shuffledQuizPhrases[state.quizIndex];
+            const utZh = new SpeechSynthesisUtterance(currentQuizPhrase.zh);
+            utZh.lang = 'zh-CN';
+            utZh.rate = 0.85;
+            window.speechSynthesis.speak(utZh);
+        }
+
+        // Speech Recognition
+        function startPracticeListening() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                state.speechError = "Speech recognition is not supported. Try Chrome or Edge.";
+                render();
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'zh-CN';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                state.isListening = true;
+                state.recognizedText = "";
+                state.feedbackState = null;
+                state.speechError = "";
+                render();
+            };
+
+            recognition.onresult = (event) => {
+                const speechResult = event.results[0][0].transcript;
+                state.recognizedText = speechResult;
+                
+                const currentPhrase = studyData[state.selectedDay].phrases[state.phraseIndex];
+                const targetClean = cleanChineseText(currentPhrase.zh);
+                const spokenClean = cleanChineseText(speechResult);
+                
+                if (spokenClean.includes(targetClean) || (targetClean.includes(spokenClean) && spokenClean.length > 0)) {
+                    state.feedbackState = 'correct';
+                } else {
+                    state.feedbackState = 'incorrect';
+                }
+            };
+
+            recognition.onerror = (event) => {
+                state.speechError = `Microphone error: ${event.error}`;
+                state.isListening = false;
+                render();
+            };
+
+            recognition.onend = () => {
+                state.isListening = false;
+                render();
+            };
+
+            recognition.start();
+        }
+
+        function startQuizListening() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                state.speechError = "Speech recognition is not supported.";
+                render();
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                state.isQuizListening = true;
+                state.quizRecognizedText = "";
+                state.quizFeedback = null;
+                state.speechError = "";
+                render();
+            };
+
+            recognition.onresult = (event) => {
+                const speechResult = event.results[0][0].transcript;
+                state.quizRecognizedText = speechResult;
+                
+                const currentQuizPhrase = state.shuffledQuizPhrases[state.quizIndex];
+                const targetClean = cleanEnglishText(currentQuizPhrase.en);
+                const spokenClean = cleanEnglishText(speechResult);
+                
+                if (spokenClean.includes(targetClean) || (targetClean.includes(spokenClean) && spokenClean.length > 0)) {
+                    state.quizFeedback = 'correct';
+                    state.showQuizAnswer = true;
+                } else {
+                    state.quizFeedback = 'incorrect';
+                }
+            };
+
+            recognition.onerror = (event) => {
+                state.speechError = `Microphone error: ${event.error}`;
+                state.isQuizListening = false;
+                render();
+            };
+
+            recognition.onend = () => {
+                state.isQuizListening = false;
+                render();
+            };
+
+            recognition.start();
+        }
+
+        // --- RENDER (DOM UPDATE) ---
+        function render() {
+            // Update Tabs UI
+            if (state.activeTab === 'practice') {
+                els.tabPractice.className = "flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all shadow-sm bg-red-600 text-white shadow-md scale-105";
+                els.tabQuiz.className = "flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all shadow-sm bg-white text-neutral-600 hover:bg-neutral-100";
+                els.viewPractice.classList.remove('hidden');
+                els.viewQuiz.classList.add('hidden');
+            } else {
+                els.tabPractice.className = "flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all shadow-sm bg-white text-neutral-600 hover:bg-neutral-100";
+                els.tabQuiz.className = "flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all shadow-sm bg-red-600 text-white shadow-md scale-105";
+                els.viewPractice.classList.add('hidden');
+                els.viewQuiz.classList.remove('hidden');
+            }
+
+            // Update Toggles UI
+            els.togglePinyin.className = `flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm ${state.hidePinyin ? 'bg-neutral-800 text-white' : 'bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50'}`;
+            els.toggleCharacters.className = `flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm ${state.hideCharacters ? 'bg-neutral-800 text-white' : 'bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50'}`;
+            els.toggleBlind.className = `flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm ${state.blindMode ? 'bg-indigo-600 text-white shadow-md scale-105' : 'bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50'}`;
+            
+            // Swap icons safely
+            els.iconPinyin.innerHTML = state.hidePinyin ? svgs.eyeOff : svgs.eye;
+            els.iconCharacters.innerHTML = state.hideCharacters ? svgs.eyeOff : svgs.eye;
+
+            els.textPinyin.textContent = state.hidePinyin ? 'Pinyin Hidden' : 'Hide Pinyin';
+            els.textCharacters.textContent = state.hideCharacters ? 'Characters Hidden' : 'Hide Characters';
+            els.textBlind.textContent = state.blindMode ? 'Blind Mode ON' : 'Blind Listening';
+
+            // Show Peek Hint globally if needed
+            const showHint = state.hidePinyin || state.hideCharacters || state.blindMode;
+            els.pracPeekHint.classList.toggle('hidden', !showHint);
+            els.quizPeekHint.classList.toggle('hidden', !showHint);
+
+            // --- PRACTICE RENDER ---
+            if (state.activeTab === 'practice') {
+                const currentPhraseList = studyData[state.selectedDay].phrases;
+                const phrase = currentPhraseList[state.phraseIndex];
+                
+                els.pracSelect.value = state.selectedDay;
+                els.pracCounter.textContent = `${state.phraseIndex + 1} / ${currentPhraseList.length}`;
+                els.pracPrev.disabled = state.phraseIndex === 0;
+                els.pracNext.disabled = state.phraseIndex === currentPhraseList.length - 1;
+
+                els.pracEn.textContent = phrase.en;
+                els.pracZh.textContent = phrase.zh;
+                els.pracPinyin.textContent = phrase.pinyin;
+
+                els.pracEn.className = `text-xl font-medium transition-all duration-300 ${state.blindMode ? 'blur-md opacity-30 hover:blur-none hover:opacity-100 cursor-pointer select-none text-neutral-800' : 'text-neutral-500'}`;
+                els.pracZh.className = `text-5xl font-bold transition-all duration-300 ${state.hideCharacters || state.blindMode ? 'blur-md opacity-30 hover:blur-none hover:opacity-100 cursor-pointer select-none text-neutral-800' : 'text-neutral-800'}`;
+                els.pracPinyin.className = `text-2xl font-medium tracking-wide transition-all duration-300 ${state.hidePinyin || state.blindMode ? 'blur-md opacity-30 hover:blur-none hover:opacity-100 cursor-pointer select-none text-red-800' : 'text-red-600'}`;
+
+                els.pracPlay.disabled = state.isPlayingAudio;
+                els.pracMic.disabled = state.isListening;
+                els.pracMic.className = `${state.isListening ? 'bg-red-500 animate-pulse text-white' : 'bg-red-600 hover:bg-red-700 text-white'} p-4 rounded-full transition-colors shadow-md disabled:opacity-80 flex items-center justify-center`;
+
+                // Errors & Feedback
+                if (state.speechError) {
+                    els.pracError.textContent = state.speechError;
+                    els.pracError.classList.remove('hidden');
+                } else {
+                    els.pracError.classList.add('hidden');
+                }
+
+                els.pracListenStat.classList.toggle('hidden', !state.isListening);
+                
+                if (!state.isListening && state.recognizedText) {
+                    els.pracFeedbackBox.classList.remove('hidden');
+                    els.pracRecognizedText.textContent = state.recognizedText;
+                    if (state.feedbackState === 'correct') {
+                        els.pracFeedbackBox.className = "p-4 rounded-xl border bg-green-50 border-green-200 transition-all";
+                        els.pracFeedbackIcon.innerHTML = svgs.check;
+                        els.pracFeedbackTitle.textContent = "Excellent!";
+                        els.pracFeedbackTitle.className = "font-bold text-green-700";
+                    } else {
+                        els.pracFeedbackBox.className = "p-4 rounded-xl border bg-orange-50 border-orange-200 transition-all";
+                        els.pracFeedbackIcon.innerHTML = svgs.x;
+                        els.pracFeedbackTitle.textContent = "Almost! Try again.";
+                        els.pracFeedbackTitle.className = "font-bold text-orange-700";
+                    }
+                } else {
+                    els.pracFeedbackBox.classList.add('hidden');
+                }
+            }
+
+            // --- QUIZ RENDER ---
+            if (state.activeTab === 'quiz') {
+                const phrase = state.shuffledQuizPhrases[state.quizIndex];
+                
+                els.quizSelect.value = state.quizCategory;
+                els.quizCounter.textContent = `${state.quizIndex + 1} / ${state.shuffledQuizPhrases.length}`;
+                els.quizPrev.disabled = state.quizIndex === 0;
+                els.quizNext.disabled = state.quizIndex === state.shuffledQuizPhrases.length - 1;
+
+                els.quizZh.textContent = phrase.zh;
+                els.quizPinyin.textContent = phrase.pinyin;
+                els.quizEn.textContent = phrase.en;
+
+                els.quizZh.className = `text-5xl font-bold transition-all duration-300 ${state.hideCharacters || state.blindMode ? 'blur-md opacity-30 hover:blur-none hover:opacity-100 cursor-pointer select-none text-neutral-800' : 'text-neutral-800'}`;
+                els.quizPinyin.className = `text-2xl font-medium tracking-wide transition-all duration-300 ${state.hidePinyin || state.blindMode ? 'blur-md opacity-30 hover:blur-none hover:opacity-100 cursor-pointer select-none text-blue-800' : 'text-blue-600'}`;
+
+                els.quizAnsCont.className = `mt-6 transition-all duration-300 ${state.showQuizAnswer ? 'opacity-100' : 'opacity-0'}`;
+                
+                els.quizMic.disabled = state.isQuizListening;
+                els.quizMic.className = `${state.isQuizListening ? 'bg-blue-500 animate-pulse text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'} p-4 rounded-full transition-colors shadow-md disabled:opacity-80 flex items-center justify-center`;
+                els.quizReveal.classList.toggle('hidden', state.showQuizAnswer);
+
+                // Errors & Feedback
+                if (state.speechError) {
+                    els.quizError.textContent = state.speechError;
+                    els.quizError.classList.remove('hidden');
+                } else {
+                    els.quizError.classList.add('hidden');
+                }
+
+                els.quizListenStat.classList.toggle('hidden', !state.isQuizListening);
+
+                if (!state.isQuizListening && state.quizRecognizedText) {
+                    els.quizFeedbackBox.classList.remove('hidden');
+                    els.quizRecognizedText.textContent = state.quizRecognizedText;
+                    if (state.quizFeedback === 'correct') {
+                        els.quizFeedbackBox.className = "p-4 rounded-xl border bg-green-50 border-green-200 transition-all";
+                        els.quizFeedbackIcon.innerHTML = svgs.check;
+                        els.quizFeedbackTitle.textContent = "Correct!";
+                        els.quizFeedbackTitle.className = "font-bold text-green-700";
+                    } else {
+                        els.quizFeedbackBox.className = "p-4 rounded-xl border bg-orange-50 border-orange-200 transition-all";
+                        els.quizFeedbackIcon.innerHTML = svgs.x;
+                        els.quizFeedbackTitle.textContent = "Not quite.";
+                        els.quizFeedbackTitle.className = "font-bold text-orange-700";
+                    }
+                } else {
+                    els.quizFeedbackBox.classList.add('hidden');
+                }
+            }
+        }
+
+        // Wait for the DOM to be fully loaded before triggering our script
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
